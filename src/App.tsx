@@ -90,26 +90,44 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-paper text-ink">
-      <header className="sticky top-0 z-20 border-b border-line/70 bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/80">
+      <header className="sticky top-0 z-20 border-b border-line/70 bg-[linear-gradient(90deg,rgba(230,238,244,0.9),rgba(245,243,238,0.92),rgba(231,239,233,0.88))] backdrop-blur supports-[backdrop-filter]:bg-[linear-gradient(90deg,rgba(230,238,244,0.78),rgba(245,243,238,0.8),rgba(231,239,233,0.74))]">
         <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-2 sm:px-8">
-          <button onClick={() => setView("home")} className="text-sm font-medium tracking-[0.14em] text-ink/80">
+          <button
+            onClick={() => setView("home")}
+            className="text-sm font-medium tracking-[0.14em] text-accent/90 transition hover:text-accent"
+          >
             JUSTIN HOANG
           </button>
 
           <nav className="flex items-center gap-5 text-xs uppercase tracking-[0.16em] text-ink/75">
-            <button onClick={() => setView("home")} className={view === "home" ? "text-ink" : "hover:text-ink"}>
+            <button
+              onClick={() => setView("home")}
+              className={view === "home" ? "rounded-sm bg-accent-soft px-2 py-1 text-accent" : "rounded-sm px-2 py-1 transition hover:bg-accent-soft/70 hover:text-accent"}
+            >
               Home
             </button>
-            <button onClick={() => setView("work")} className={view === "work" ? "text-ink" : "hover:text-ink"}>
+            <button
+              onClick={() => setView("work")}
+              className={view === "work" ? "rounded-sm bg-accent-soft px-2 py-1 text-accent" : "rounded-sm px-2 py-1 transition hover:bg-accent-soft/70 hover:text-accent"}
+            >
               Work
             </button>
             <button
               onClick={() => setView("education")}
-              className={view === "education" ? "text-ink" : "hover:text-ink"}
+              className={
+                view === "education"
+                  ? "rounded-sm bg-accent-soft px-2 py-1 text-accent"
+                  : "rounded-sm px-2 py-1 transition hover:bg-accent-soft/70 hover:text-accent"
+              }
             >
               Education
             </button>
-            <a href={RESUME_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-ink">
+            <a
+              href={RESUME_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 transition hover:text-accent"
+            >
               Resume <ArrowUpRight className="h-3.5 w-3.5" />
             </a>
           </nav>
@@ -150,7 +168,7 @@ function HomeView() {
               animate="visible"
               variants={fadeInUp}
               transition={{ duration: 0.6 }}
-              className="text-xs uppercase tracking-[0.2em] text-ink/65"
+              className="text-xs uppercase tracking-[0.2em] text-accent/85"
             >
               About Me
             </motion.p>
@@ -184,7 +202,10 @@ function HomeView() {
               className="mt-8 flex flex-wrap gap-2"
             >
               {skills.map((skill) => (
-                <span key={skill} className="border border-line bg-paper-soft px-3 py-1.5 text-xs tracking-[0.08em] text-ink/80">
+                <span
+                  key={skill}
+                  className="border border-accent/20 bg-accent-soft/70 px-3 py-1.5 text-xs tracking-[0.08em] text-accent/90"
+                >
                   {skill}
                 </span>
               ))}
@@ -193,7 +214,7 @@ function HomeView() {
         </div>
       </section>
 
-      <section id="selected-work" className="scroll-mt-28 border-t border-line/70">
+      <section id="selected-work" className="scroll-mt-28 border-t border-line/70 bg-accent-soft/30">
         <SectionShell>
           <SectionHeading
             label="Selected Work"
@@ -209,7 +230,7 @@ function HomeView() {
         </SectionShell>
       </section>
 
-      <section id="contact" className="scroll-mt-28 border-y border-line/70">
+      <section id="contact" className="scroll-mt-28 border-y border-line/70 bg-sage-soft/35">
         <SectionShell>
           <motion.div
             initial="hidden"
@@ -220,17 +241,17 @@ function HomeView() {
             className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-end"
           >
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-ink/65">Contact</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-accent/85">Contact</p>
               <h2 className="mt-5 font-display text-3xl leading-tight text-ink sm:text-4xl">Let&apos;s connect.</h2>
             </div>
 
             <div className="space-y-4">
               <a
                 href="mailto:justinhoang710@gmail.com"
-                className="group inline-flex w-full items-center justify-between border-b border-ink/60 pb-2 text-sm tracking-[0.12em] text-ink"
+                className="group inline-flex w-full items-center justify-between border-b border-ink/55 pb-2 text-sm tracking-[0.12em] text-ink transition hover:text-accent"
               >
                 justinhoang710@gmail.com
-                <span className="inline-flex items-center gap-2 text-ink/70 transition group-hover:text-ink">
+                <span className="inline-flex items-center gap-2 text-ink/70 transition group-hover:text-accent">
                   <Mail className="h-4 w-4" />
                   <ArrowUpRight className="h-4 w-4" />
                 </span>
@@ -238,10 +259,10 @@ function HomeView() {
 
               <a
                 href="tel:6093282199"
-                className="group inline-flex w-full items-center justify-between border-b border-ink/60 pb-2 text-sm tracking-[0.12em] text-ink"
+                className="group inline-flex w-full items-center justify-between border-b border-ink/55 pb-2 text-sm tracking-[0.12em] text-ink transition hover:text-accent"
               >
                 609-328-2199
-                <span className="inline-flex items-center gap-2 text-ink/70 transition group-hover:text-ink">
+                <span className="inline-flex items-center gap-2 text-ink/70 transition group-hover:text-accent">
                   <Phone className="h-4 w-4" />
                   <ArrowUpRight className="h-4 w-4" />
                 </span>
@@ -294,7 +315,7 @@ function EducationView() {
               viewport={{ once: true, margin: "-80px" }}
               variants={fadeInUp}
               transition={{ duration: 0.55 }}
-              className="border border-line bg-paper-soft p-6"
+              className="border border-line bg-sage-soft/40 p-6"
             >
               <h3 className="font-display text-2xl text-ink">Stockton University</h3>
               <p className="mt-2 text-sm uppercase tracking-[0.12em] text-ink/65">B.S. Computer Science · Current</p>
@@ -310,7 +331,7 @@ function EducationView() {
               viewport={{ once: true, margin: "-80px" }}
               variants={fadeInUp}
               transition={{ duration: 0.55, delay: 0.05 }}
-              className="border border-line bg-paper-soft p-6"
+              className="border border-line bg-accent-soft/45 p-6"
             >
               <h3 className="font-display text-2xl text-ink">Previous Education</h3>
               <p className="mt-2 text-sm uppercase tracking-[0.12em] text-ink/65">
@@ -334,7 +355,7 @@ function EducationView() {
             <h3 className="font-display text-2xl text-ink">Relevant Coursework</h3>
             <ul className="mt-5 grid gap-3 sm:grid-cols-2">
               {coursework.map((course) => (
-                <li key={course} className="border border-line bg-paper-soft px-4 py-3 text-sm text-ink/80">
+                <li key={course} className="border border-line bg-paper-soft/90 px-4 py-3 text-sm text-ink/80">
                   {course}
                 </li>
               ))}
@@ -360,7 +381,7 @@ function SectionHeading({ label, title, description }: { label: string; title: s
       transition={{ duration: 0.55 }}
       className="max-w-3xl"
     >
-      <p className="text-xs uppercase tracking-[0.2em] text-ink/65">{label}</p>
+      <p className="text-xs uppercase tracking-[0.2em] text-accent/85">{label}</p>
       <h2 className="mt-5 font-display text-3xl leading-tight text-ink sm:text-4xl">{title}</h2>
       <p className="mt-6 text-base leading-relaxed text-ink/78">{description}</p>
     </motion.div>
@@ -386,7 +407,7 @@ function WorkRow({ item, reverse }: { item: WorkItem; reverse?: boolean }) {
           href={item.link}
           target="_blank"
           rel="noreferrer"
-          className="mt-8 inline-flex items-center gap-2 border-b border-ink/60 pb-1 text-xs uppercase tracking-[0.16em] text-ink/80 transition hover:text-ink"
+          className="mt-8 inline-flex items-center gap-2 border-b border-accent/50 pb-1 text-xs uppercase tracking-[0.16em] text-accent/85 transition hover:text-accent"
         >
           {item.linkLabel} <ArrowUpRight className="h-4 w-4" />
         </a>

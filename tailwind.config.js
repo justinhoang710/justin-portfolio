@@ -8,6 +8,10 @@ export default {
         "paper-soft": "#f0ede7",
         ink: "#22201c",
         line: "#d8d2c8",
+        accent: "#3b5f7a",
+        "accent-soft": "#e6eef4",
+        sage: "#456255",
+        "sage-soft": "#e7efe9",
       },
       fontFamily: {
         display: ['"Newsreader"', "serif"],
