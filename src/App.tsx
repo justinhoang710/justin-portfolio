@@ -1,429 +1,567 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowRight, ExternalLink, Github, Leaf, Linkedin, Mail } from "lucide-react";
+import { useRef, useState, type ReactNode } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowUpRight, Mail, Phone } from "lucide-react";
 
-const navItems = [
-  { id: "home", label: "Home" },
-  { id: "about", label: "About" },
-  { id: "projects", label: "Projects" },
-  { id: "experience", label: "Experience" },
-  { id: "gallery", label: "My Photos" },
-  { id: "contact", label: "Contact" },
-];
+type WorkItem = {
+  id: string;
+  title: string;
+  summary: string;
+  details: string;
+  image: string;
+  link: string;
+  linkLabel: string;
+};
 
-const projects = [
+type View = "home" | "work" | "education";
+
+const RESUME_URL = "/resume.pdf";
+
+const selectedWork: WorkItem[] = [
   {
-    title: "BugTracker+",
-    blurb: "Spring Boot and React platform for teams to triage issues, automate reporting, and ship faster.",
-    tags: ["Spring Boot", "React", "SQL", "Docker"],
-    image: "https://images.unsplash.com/photo-1517433456452-f9633a875f6f?auto=format&fit=crop&w=1200&q=80",
-    href: "https://github.com/1juho1?tab=repositories",
-  },
-  {
+    id: "fingen-agents",
     title: "FinGen Agents",
-    blurb: "Multi-agent LLM assistant that evaluates financial portfolios, runs backtests, and drafts insights.",
-    tags: ["Python", "LLM", "RAG", "RL"],
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80",
-    href: "https://github.com/1juho1?tab=repositories",
+    summary: "An AI-driven platform for market analysis, strategy simulation, and financial insights.",
+    details:
+      "Built with agent-based workflows to evaluate portfolio scenarios and surface practical recommendations through a clean interface.",
+    image:
+      "https://images.unsplash.com/photo-1551281044-8b5bd0f5f0f1?auto=format&fit=crop&w=1600&q=80",
+    link: "https://github.com/1juho1",
+    linkLabel: "View project",
   },
   {
-    title: "Icy Boba Digital",
-    blurb: "Immersive storefront experience with menu management, gallery, and automated catering requests.",
-    tags: ["HTML", "CSS", "JavaScript"],
-    image: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1200&q=80",
-    href: "https://github.com/1juho1?tab=repositories",
+    id: "volleyball-app",
+    title: "Volleyball App",
+    summary: "A team and match management app for scheduling, stats tracking, and communication.",
+    details:
+      "Designed to simplify roster updates, match planning, and player performance review with responsive, easy-to-scan views.",
+    image:
+      "https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1600&q=80",
+    link: "https://github.com/1juho1",
+    linkLabel: "View project",
+  },
+  {
+    id: "workplace-scheduler",
+    title: "Workplace Schedule Application",
+    summary: "A scheduling tool for workplaces to manage shifts, availability, and team coverage.",
+    details:
+      "Focused on clarity and reliability so managers can publish schedules quickly while employees can check updates in real time.",
+    image:
+      "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1600&q=80",
+    link: "https://github.com/1juho1",
+    linkLabel: "View project",
   },
 ];
 
-const moodboardImages = [
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1501973801540-537f08ccae7b?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1476041800959-2f6bb412c8ce?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1520420097861-7a29d3d06fa4?auto=format&fit=crop&w=800&q=80",
+const allWork = selectedWork;
+
+const skills = [
+  "Prompt Engineering",
+  "Software Engineering",
+  "SQL",
+  "Python",
+  "Flask",
+  "Java",
+  "JavaScript",
+  "HTML",
+  "Node.js",
+  "Tailwind CSS",
+  "React",
+  "Git",
 ];
 
-export default function JustinPortfolio() {
-  const [active, setActive] = useState("home");
+const coursework = [
+  "Data Structures and Algorithms",
+  "Database Management Systems",
+  "Software Engineering",
+  "Computer Organization",
+  "Operating Systems",
+  "Web Application Development",
+  "Discrete Mathematics",
+  "Computer Networks",
+];
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => (a.boundingClientRect.top > b.boundingClientRect.top ? 1 : -1));
-        if (visible[0]) {
-          setActive(visible[0].target.id);
-        }
-      },
-      { rootMargin: "-40% 0px -40% 0px", threshold: [0.2, 0.4, 0.6, 1] }
-    );
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
 
-    navItems.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  const handleNavClick = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const underlineStyle = useMemo(() => {
-    const idx = navItems.findIndex((n) => n.id === active);
-    const pct = (idx / navItems.length) * 100;
-    const width = 100 / navItems.length;
-    return { left: `${pct}%`, width: `${width}%` } as React.CSSProperties;
-  }, [active]);
+export default function App() {
+  const [view, setView] = useState<View>("home");
 
   return (
-    <div className="min-h-screen bg-mist text-bark font-body">
-      <div className="pointer-events-none fixed inset-0 -z-20 bg-fall-paper [background-size:24px_24px] opacity-50" />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-gradient-to-b from-[rgba(255,255,255,0.55)] via-transparent to-transparent" />
+    <div className="min-h-screen bg-paper text-ink">
+      <header className="sticky top-0 z-20 border-b border-line/70 bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/80">
+        <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-2 sm:px-8">
+          <button onClick={() => setView("home")} className="text-sm font-medium tracking-[0.14em] text-ink/80">
+            JUSTIN HOANG
+          </button>
 
-      <header className="sticky top-0 z-40 border-b border-amber/30 bg-mist/85 backdrop-blur supports-[backdrop-filter]:bg-mist/80">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.6 }}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-amber/20 text-amber"
+          <nav className="flex items-center gap-5 text-xs uppercase tracking-[0.16em] text-ink/75">
+            <button onClick={() => setView("home")} className={view === "home" ? "text-ink" : "hover:text-ink"}>
+              Home
+            </button>
+            <button onClick={() => setView("work")} className={view === "work" ? "text-ink" : "hover:text-ink"}>
+              Work
+            </button>
+            <button
+              onClick={() => setView("education")}
+              className={view === "education" ? "text-ink" : "hover:text-ink"}
             >
-              <Leaf className="h-5 w-5" />
-            </motion.div>
-            <div className="leading-tight">
-              <div className="font-display text-lg font-semibold">Justin Hoang</div>
-              <div className="text-xs uppercase tracking-[0.3em] text-moss/70">Software Engineer</div>
-            </div>
-          </div>
-
-          <nav className="relative hidden h-full items-center md:flex">
-            <div className="flex gap-6 text-sm font-medium">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleNavClick(item.id)}
-                  className={`pb-3 pt-2 transition-colors hover:text-moss ${
-                    active === item.id ? "text-moss" : "text-bark/70"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-            <span
-              className="pointer-events-none absolute bottom-0 block h-[2px] bg-amber shadow-[0_6px_18px_rgba(247,177,94,0.45)] transition-all duration-300 ease-out"
-              style={underlineStyle}
-            />
+              Education
+            </button>
+            <a href={RESUME_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-ink">
+              Resume <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
           </nav>
-
-          <motion.a
-            href="#projects"
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-2 rounded-full bg-amber px-4 py-2 text-sm font-semibold text-bark shadow-leaf-soft transition hover:bg-ember hover:text-white"
-          >
-            View Projects <ArrowRight className="h-4 w-4" />
-          </motion.a>
         </div>
       </header>
 
-      <main className="pb-20">
-        <section id="home" className="relative isolate overflow-hidden">
-          <div className="absolute inset-0 -z-10">
-            <img
-              src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=2000&q=80"
-              alt="Sunlit forest with golden foliage"
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[rgba(47,38,33,0.25)] via-[rgba(47,38,33,0.12)] to-[rgba(47,38,33,0.4)]" />
-          <div className="mx-auto flex max-w-6xl flex-col items-center gap-12 px-4 py-28 text-center text-white">
-            <motion.div
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="space-y-6"
-            >
-              <span className="inline-flex items-center gap-2 rounded-full bg-amber/20 px-4 py-2 text-xs font-medium uppercase tracking-[0.35em] text-amber">
-                Featured Work
-              </span>
-              <h1 className="font-display text-4xl leading-tight sm:text-5xl md:text-6xl">
-                Crafting thoughtful software experiences with a calm, polished touch.
-              </h1>
-              <p className="mx-auto max-w-2xl text-base sm:text-lg text-white/85">
-                I'm a computer science student focused on full-stack engineering. I build resilient web platforms,
-                intelligent automations, and product moments that feel welcoming and well-considered.
-              </p>
-            </motion.div>
+      {view === "home" && <HomeView />}
+      {view === "work" && <WorkView items={allWork} />}
+      {view === "education" && <EducationView />}
 
-            <div className="grid w-full gap-4 sm:grid-cols-3">
-              <StatBubble label="Focus" value="Human-centered full-stack" />
-              <StatBubble label="Toolbox" value="Java • Python • React • SQL" />
-              <StatBubble label="Mindset" value="Learn, iterate, refine" />
-            </div>
-
-            <div className="flex flex-col items-center gap-4 sm:flex-row">
-              <motion.a
-                href="#contact"
-                whileTap={{ scale: 0.96 }}
-                className="inline-flex items-center gap-2 rounded-full bg-mist px-6 py-3 text-sm font-semibold text-bark shadow-md transition hover:bg-white/90"
-              >
-                Let's collaborate <ArrowRight className="h-4 w-4" />
-              </motion.a>
-              <a
-                href="https://github.com/1juho1"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-white/85 transition hover:text-white"
-              >
-                View GitHub <ExternalLink className="h-4 w-4" />
-              </a>
-            </div>
-          </div>
-        </section>
-
-        <SectionWrapper id="about">
-          <SectionHeading kicker="About" title="A grounded engineer with a creative streak" />
-          <div className="mt-12 grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="space-y-6 text-base leading-relaxed text-bark/85">
-              <p>
-                I'm currently studying Computer Science at Stockton University and channeling my curiosity into building
-                useful software. Whether it's a process automation, an analytics workflow, or a digital storefront, I aim
-                for balanced solutions that blend clarity and craft.
-              </p>
-              <p>
-                Outside the keyboard, you'll find me exploring specialty coffee shops, photographing everyday details, or
-                diving into new research rabbit holes. That curiosity keeps my work patient, deliberate, and always
-                evolving.
-              </p>
-              <ul className="grid gap-3 sm:grid-cols-2">
-                <li className="rounded-2xl border border-amber/30 bg-white/70 px-4 py-3 shadow-leaf-soft">
-                  GPA 3.15 · Junior · Class of 2027
-                </li>
-                <li className="rounded-2xl border border-amber/30 bg-white/70 px-4 py-3 shadow-leaf-soft">
-                  Comfortable with Java, Python, TypeScript, C++, SQL
-                </li>
-                <li className="rounded-2xl border border-amber/30 bg-white/70 px-4 py-3 shadow-leaf-soft">
-                  React, Spring Boot, Tailwind, Git, Framer Motion
-                </li>
-                <li className="rounded-2xl border border-amber/30 bg-white/70 px-4 py-3 shadow-leaf-soft">
-                  Interests in quant finance, data science, and security
-                </li>
-              </ul>
-            </div>
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.6 }}
-              className="relative"
-            >
-              <div className="absolute -inset-5 -z-10 rounded-3xl bg-gradient-to-br from-amber/40 via-transparent to-transparent blur-2xl" />
-              <img
-                src="/Headshot.jpg"
-                alt="Portrait of Justin Hoang"
-                className="h-full w-full rounded-3xl object-cover shadow-leaf"
-              />
-            </motion.div>
-          </div>
-        </SectionWrapper>
-
-        <SectionWrapper id="projects">
-          <SectionHeading kicker="Recent Work" title="Building purposeful digital products" />
-          <div className="mt-12 grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-            {projects.map((project) => (
-              <ProjectCard key={project.title} {...project} />
-            ))}
-          </div>
-        </SectionWrapper>
-
-        <SectionWrapper id="experience">
-          <SectionHeading kicker="Experience" title="Hands-on roles with real impact" />
-          <div className="mt-12 grid gap-6 lg:grid-cols-2">
-            <ExperienceCard
-              role="Web Developer & IT Specialist"
-              org="Icy Boba"
-              time="2024 – Present"
-              bullets={[
-                "Designed and launched a performant multi-page site with menu, gallery, and contact flows.",
-                "Automated daily tasks around inventory and reporting, improving turnaround time for the team.",
-                "Maintain POS hardware, troubleshoot devices, and keep the environment reliable during rush hours.",
-              ]}
-            />
-            <ExperienceCard
-              role="Academic Projects"
-              org="Stockton University"
-              time="2023 – Present"
-              bullets={[
-                "Developed data structure visualizers and algorithmic problem sets to strengthen fundamentals.",
-                "Led group programming assignments, coordinating Git workflows and peer reviews.",
-                "Explored cybersecurity labs covering network hardening, threat modeling, and incident response drills.",
-              ]}
-            />
-          </div>
-        </SectionWrapper>
-
-        <SectionWrapper id="gallery">
-          <SectionHeading kicker="My Photos" title="Scenes I've captured that influence my craft" />
-          <p className="mt-6 max-w-2xl text-sm text-bark/70">
-            A few warm-toned visuals from behind my lens that inspire the color choices, typography, and sense of calm in
-            this portfolio. Each shot is a reminder to slow down, design intentionally, and highlight the craft behind
-            every build.
-          </p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {moodboardImages.map((src, index) => (
-              <motion.div
-                key={src}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="relative overflow-hidden rounded-3xl bg-bark/20 shadow-lg"
-              >
-                <img src={src} alt="Captured inspiration" className="h-48 w-full object-cover transition duration-700 hover:scale-105" />
-              </motion.div>
-            ))}
-          </div>
-        </SectionWrapper>
-
-        <SectionWrapper id="contact">
-          <SectionHeading kicker="Let's Connect" title="Open to internships, collaborations, and coffee chats" />
-          <div className="mt-10 grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
-            <motion.a
-              href="mailto:justinhoang710@gmail.com"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex flex-col gap-4 rounded-3xl border border-amber/30 bg-white px-6 py-8 shadow-leaf"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-display text-xl">Reach out via email</div>
-                  <p className="mt-1 text-sm text-bark/70">
-                    Share a project brief, internship opportunity, or just say hello. I respond within two business days.
-                  </p>
-                </div>
-                <Mail className="h-6 w-6 text-amber" />
-              </div>
-              <span className="text-base font-semibold">justinhoang710@gmail.com</span>
-            </motion.a>
-
-            <div className="flex flex-col gap-4 rounded-3xl border border-amber/30 bg-white px-6 py-8 shadow-leaf-soft">
-              <div className="flex items-center justify-between">
-                <div className="font-display text-xl">Elsewhere</div>
-                <ExternalLink className="h-5 w-5 text-amber" />
-              </div>
-              <div className="flex flex-wrap gap-3 text-sm font-semibold">
-                <a
-                  href="https://github.com/1juho1"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-mist px-3 py-2 text-bark transition hover:bg-amber/30"
-                >
-                  <Github className="h-4 w-4" /> GitHub
-                </a>
-                <a
-                  href="https://www.linkedin.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-mist px-3 py-2 text-bark transition hover:bg-amber/30"
-                >
-                  <Linkedin className="h-4 w-4" /> LinkedIn
-                </a>
-              </div>
-              <p className="text-sm text-bark/70">
-                Let me know if you'd like a tailored resume or a walkthrough of any project.
-              </p>
-            </div>
-          </div>
-        </SectionWrapper>
-      </main>
-
-      <footer className="border-t border-amber/30 bg-white/70 py-8 text-center text-xs text-bark/60">
-        © {new Date().getFullYear()} Justin Hoang · Crafted with care.
+      <footer className="mx-auto max-w-6xl px-5 py-8 text-xs uppercase tracking-[0.14em] text-ink/55 sm:px-8">
+        © {new Date().getFullYear()} Justin Hoang
       </footer>
     </div>
   );
 }
 
-function SectionWrapper({ id, children }: { id: string; children: React.ReactNode }) {
+function HomeView() {
   return (
-    <section id={id} className="scroll-mt-24">
-      <div className="mx-auto max-w-6xl px-4 py-20">{children}</div>
-    </section>
-  );
-}
+    <main>
+      <section id="about" className="scroll-mt-28">
+        <div className="mx-auto grid max-w-6xl gap-10 px-5 pb-16 pt-24 sm:px-8 sm:pb-24 sm:pt-28 md:grid-cols-[0.9fr_1.1fr] md:items-center">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeInUp}
+            transition={{ duration: 0.6 }}
+            className="border border-line bg-paper-soft"
+          >
+            <div className="flex h-[320px] w-full items-center justify-center text-xs uppercase tracking-[0.2em] text-ink/55 sm:h-[400px]">
+              Image Placeholder
+            </div>
+          </motion.div>
 
-function SectionHeading({ kicker, title }: { kicker: string; title: string }) {
-  return (
-    <div className="space-y-3 text-center">
-      <div className="text-xs uppercase tracking-[0.35em] text-moss/70">{kicker}</div>
-      <h2 className="font-display text-3xl font-semibold text-bark sm:text-4xl">{title}</h2>
-    </div>
-  );
-}
+          <div className="md:pl-8">
+            <motion.p
+              initial="hidden"
+              animate="visible"
+              variants={fadeInUp}
+              transition={{ duration: 0.6 }}
+              className="text-xs uppercase tracking-[0.2em] text-ink/65"
+            >
+              About Me
+            </motion.p>
+            <motion.h1
+              initial="hidden"
+              animate="visible"
+              variants={fadeInUp}
+              transition={{ duration: 0.7, delay: 0.05 }}
+              className="mt-6 max-w-4xl font-display text-4xl leading-tight text-ink sm:text-5xl"
+            >
+              I&apos;m Justin Hoang, a Computer Science student at Stockton University and an engineer focused on building
+              practical software.
+            </motion.h1>
+            <motion.p
+              initial="hidden"
+              animate="visible"
+              variants={fadeInUp}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="mt-7 max-w-2xl text-base leading-relaxed text-ink/80"
+            >
+              At Stockton University, I&apos;ve been sharpening both theory and hands-on development through coursework,
+              team projects, and real implementations. I enjoy turning ideas into reliable products that are simple to
+              use and built to scale.
+            </motion.p>
 
-function ProjectCard({ title, blurb, tags, image, href }: (typeof projects)[number]) {
-  return (
-    <motion.a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      whileHover={{ y: -6 }}
-      className="group overflow-hidden rounded-3xl border border-amber/30 bg-white/80 shadow-leaf-soft transition"
-    >
-      <div className="relative h-40 overflow-hidden">
-        <img src={image} alt="Project preview" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-        <span className="absolute inset-0 bg-gradient-to-t from-bark/70 via-bark/10 to-transparent" />
-      </div>
-      <div className="flex flex-col gap-4 p-6">
-        <div>
-          <h3 className="font-display text-xl text-bark">{title}</h3>
-          <p className="mt-2 text-sm text-bark/70">{blurb}</p>
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={fadeInUp}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="mt-8 flex flex-wrap gap-2"
+            >
+              {skills.map((skill) => (
+                <span key={skill} className="border border-line bg-paper-soft px-3 py-1.5 text-xs tracking-[0.08em] text-ink/80">
+                  {skill}
+                </span>
+              ))}
+            </motion.div>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2 text-xs font-medium text-bark/70">
-          {tags.map((tag) => (
-            <span key={tag} className="rounded-full bg-amber/20 px-3 py-1 text-bark">
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-    </motion.a>
+      </section>
+
+      <section id="selected-work" className="scroll-mt-28 border-t border-line/70">
+        <SectionShell>
+          <SectionHeading
+            label="Selected Work"
+            title="Highlighted Projects"
+            description="A quick look at some featured builds."
+          />
+
+          <div className="mt-14 space-y-20 sm:space-y-28">
+            {selectedWork.map((item, index) => (
+              <WorkRow key={item.id} item={item} reverse={index % 2 === 1} />
+            ))}
+          </div>
+        </SectionShell>
+      </section>
+
+      <section id="contact" className="scroll-mt-28 border-y border-line/70">
+        <SectionShell>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeInUp}
+            transition={{ duration: 0.55 }}
+            className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-end"
+          >
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-ink/65">Contact</p>
+              <h2 className="mt-5 font-display text-3xl leading-tight text-ink sm:text-4xl">Let&apos;s connect.</h2>
+            </div>
+
+            <div className="space-y-4">
+              <a
+                href="mailto:justinhoang710@gmail.com"
+                className="group inline-flex w-full items-center justify-between border-b border-ink/60 pb-2 text-sm tracking-[0.12em] text-ink"
+              >
+                justinhoang710@gmail.com
+                <span className="inline-flex items-center gap-2 text-ink/70 transition group-hover:text-ink">
+                  <Mail className="h-4 w-4" />
+                  <ArrowUpRight className="h-4 w-4" />
+                </span>
+              </a>
+
+              <a
+                href="tel:6093282199"
+                className="group inline-flex w-full items-center justify-between border-b border-ink/60 pb-2 text-sm tracking-[0.12em] text-ink"
+              >
+                609-328-2199
+                <span className="inline-flex items-center gap-2 text-ink/70 transition group-hover:text-ink">
+                  <Phone className="h-4 w-4" />
+                  <ArrowUpRight className="h-4 w-4" />
+                </span>
+              </a>
+            </div>
+          </motion.div>
+        </SectionShell>
+      </section>
+    </main>
   );
 }
 
-function ExperienceCard({ role, org, time, bullets }: { role: string; org: string; time: string; bullets: string[] }) {
+function WorkView({ items }: { items: WorkItem[] }) {
+  return (
+    <main>
+      <section className="border-b border-line/70">
+        <SectionShell>
+          <SectionHeading
+            label="All Work"
+            title="Project Showcase"
+            description="A complete view of current portfolio projects."
+          />
+
+          <div className="mt-14 space-y-20 sm:space-y-28">
+            {items.map((item, index) => (
+              <WorkRow key={item.id} item={item} reverse={index % 2 === 1} />
+            ))}
+          </div>
+        </SectionShell>
+      </section>
+    </main>
+  );
+}
+
+function EducationView() {
+  return (
+    <main>
+      <section className="border-b border-line/70">
+        <SectionShell>
+          <SectionHeading
+            label="Education"
+            title="Current and Previous Education"
+            description="Academic background and coursework relevant to software engineering."
+          />
+
+          <div className="mt-12 grid gap-10 md:grid-cols-[1fr_1fr]">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-80px" }}
+              variants={fadeInUp}
+              transition={{ duration: 0.55 }}
+              className="border border-line bg-paper-soft p-6"
+            >
+              <h3 className="font-display text-2xl text-ink">Stockton University</h3>
+              <p className="mt-2 text-sm uppercase tracking-[0.12em] text-ink/65">B.S. Computer Science · Current</p>
+              <p className="mt-4 text-sm leading-relaxed text-ink/78">
+                Building core computer science fundamentals while applying them in full-stack and software engineering
+                projects.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-80px" }}
+              variants={fadeInUp}
+              transition={{ duration: 0.55, delay: 0.05 }}
+              className="border border-line bg-paper-soft p-6"
+            >
+              <h3 className="font-display text-2xl text-ink">Previous Education</h3>
+              <p className="mt-2 text-sm uppercase tracking-[0.12em] text-ink/65">
+                Atlantic City High School
+              </p>
+              <p className="mt-4 text-sm leading-relaxed text-ink/78">
+                Rank: 9/340. Built a strong academic foundation while developing early interest in software, problem
+                solving, and technical projects.
+              </p>
+            </motion.div>
+          </div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeInUp}
+            transition={{ duration: 0.55 }}
+            className="mt-12"
+          >
+            <h3 className="font-display text-2xl text-ink">Relevant Coursework</h3>
+            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+              {coursework.map((course) => (
+                <li key={course} className="border border-line bg-paper-soft px-4 py-3 text-sm text-ink/80">
+                  {course}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        </SectionShell>
+      </section>
+    </main>
+  );
+}
+
+function SectionShell({ children }: { children: ReactNode }) {
+  return <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">{children}</div>;
+}
+
+function SectionHeading({ label, title, description }: { label: string; title: string; description: string }) {
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      className="flex h-full flex-col gap-4 rounded-3xl border border-amber/30 bg-white px-6 py-8 shadow-leaf-soft"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-90px" }}
+      variants={fadeInUp}
+      transition={{ duration: 0.55 }}
+      className="max-w-3xl"
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <div>
-          <div className="font-display text-xl text-bark">{role}</div>
-          <div className="text-sm font-semibold text-bark/70">{org}</div>
-        </div>
-        <div className="text-xs uppercase tracking-widest text-bark/50">{time}</div>
-      </div>
-      <ul className="space-y-2 text-sm leading-relaxed text-bark/75">
-        {bullets.map((bullet) => (
-          <li key={bullet} className="relative pl-5">
-            <span className="absolute left-0 top-2 h-1 w-1 rounded-full bg-amber" />
-            {bullet}
-          </li>
-        ))}
-      </ul>
+      <p className="text-xs uppercase tracking-[0.2em] text-ink/65">{label}</p>
+      <h2 className="mt-5 font-display text-3xl leading-tight text-ink sm:text-4xl">{title}</h2>
+      <p className="mt-6 text-base leading-relaxed text-ink/78">{description}</p>
     </motion.div>
   );
 }
 
-function StatBubble({ label, value }: { label: string; value: string }) {
+function WorkRow({ item, reverse }: { item: WorkItem; reverse?: boolean }) {
   return (
-    <div className="rounded-3xl border border-white/20 bg-white/10 px-6 py-5 text-left shadow-2xl backdrop-blur">
-      <div className="text-xs uppercase tracking-[0.3em] text-white/70">{label}</div>
-      <div className="mt-2 text-sm font-semibold text-white">{value}</div>
+    <motion.article
+      id={item.id}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-80px" }}
+      variants={fadeInUp}
+      transition={{ duration: 0.6 }}
+      className={`grid gap-8 md:grid-cols-2 md:items-center ${reverse ? "md:[&>*:first-child]:order-2" : ""}`}
+    >
+      <div>
+        <h3 className="font-display text-2xl text-ink sm:text-3xl">{item.title}</h3>
+        <p className="mt-4 text-base leading-relaxed text-ink/82">{item.summary}</p>
+        <p className="mt-4 text-sm leading-relaxed text-ink/70">{item.details}</p>
+        <a
+          href={item.link}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-8 inline-flex items-center gap-2 border-b border-ink/60 pb-1 text-xs uppercase tracking-[0.16em] text-ink/80 transition hover:text-ink"
+        >
+          {item.linkLabel} <ArrowUpRight className="h-4 w-4" />
+        </a>
+      </div>
+
+      <ProjectVisual item={item} />
+    </motion.article>
+  );
+}
+
+function ProjectVisual({ item }: { item: WorkItem }) {
+  if (item.id === "volleyball-app") {
+    return <VolleyballVisual />;
+  }
+
+  if (item.id === "fingen-agents") {
+    return <StockTrendVisual />;
+  }
+
+  if (item.id === "workplace-scheduler") {
+    return <CalendarFlipVisual />;
+  }
+
+  return <ParallaxImage src={item.image} alt={item.title} />;
+}
+
+function VolleyballVisual() {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.01 }}
+      transition={{ duration: 0.2 }}
+      className="relative h-[300px] overflow-hidden border border-line bg-[linear-gradient(145deg,#f6f6f4,#ebebe8)] sm:h-[360px]"
+    >
+      <div className="absolute inset-x-0 bottom-8 h-px bg-ink/20" />
+      <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-ink/10" />
+
+      <motion.div
+        animate={{ y: [0, -44, 0], rotate: [0, 10, 0], scaleX: [1.03, 1, 1.03], scaleY: [0.98, 1, 0.98] }}
+        transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-10 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full border-2 border-[#151515] shadow-[0_16px_26px_-14px_rgba(0,0,0,0.5)]"
+        style={{
+          background:
+            "radial-gradient(circle at 30% 25%, #ffffff 0%, #f7f7f7 45%, #e6e6e6 75%, #d8d8d8 100%)",
+        }}
+      >
+        <span className="absolute left-1/2 top-0 h-full w-[2px] -translate-x-1/2 bg-black/90" />
+        <span className="absolute left-0 top-1/2 h-[2px] w-full -translate-y-1/2 bg-black/90" />
+        <span className="absolute inset-0 rounded-full border-2 border-transparent border-t-black/90 border-b-black/90" />
+        <span className="absolute inset-0 rounded-full border-2 border-transparent border-l-black/60 border-r-black/60" />
+        <span className="absolute left-[26%] top-[18%] h-4 w-4 rounded-full bg-white/75 blur-[1px]" />
+      </motion.div>
+
+      <motion.div
+        animate={{ scaleX: [0.85, 1.05, 0.85], opacity: [0.18, 0.1, 0.18] }}
+        transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-7 left-1/2 h-3 w-16 -translate-x-1/2 rounded-full bg-black/30 blur-[1px]"
+      />
+    </motion.div>
+  );
+}
+
+function StockTrendVisual() {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.01 }}
+      transition={{ duration: 0.2 }}
+      className="relative h-[300px] overflow-hidden border border-line bg-[linear-gradient(160deg,#eff4ee,#e7eee7)] sm:h-[360px]"
+    >
+      <svg viewBox="0 0 360 240" className="h-full w-full">
+        <g stroke="rgba(34,32,28,0.12)" strokeWidth="1">
+          <line x1="0" y1="40" x2="360" y2="40" />
+          <line x1="0" y1="90" x2="360" y2="90" />
+          <line x1="0" y1="140" x2="360" y2="140" />
+          <line x1="0" y1="190" x2="360" y2="190" />
+        </g>
+
+        <motion.path
+          d="M20 190 L80 168 L130 152 L180 126 L225 136 L275 96 L330 58"
+          fill="none"
+          stroke="#2f6d49"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 0.35, ease: "easeInOut" }}
+        />
+
+        <motion.circle
+          r="7"
+          fill="#2f6d49"
+          animate={{
+            cx: [20, 80, 130, 180, 225, 275, 330],
+            cy: [190, 168, 152, 126, 136, 96, 58],
+          }}
+          transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 0.35, ease: "easeInOut" }}
+        />
+      </svg>
+    </motion.div>
+  );
+}
+
+function CalendarFlipVisual() {
+  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN"];
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.01 }}
+      transition={{ duration: 0.2 }}
+      className="relative flex h-[300px] items-center justify-center overflow-hidden border border-line bg-[linear-gradient(160deg,#f4f0ea,#ece7df)] sm:h-[360px]"
+    >
+      <div className="absolute inset-x-10 top-7 h-px bg-ink/10" />
+      <div className="absolute inset-x-14 bottom-9 h-px bg-ink/10" />
+
+      <div className="relative w-[220px] rounded-sm border border-ink/20 bg-[#fcfbf8] p-5 shadow-[0_20px_35px_-20px_rgba(0,0,0,0.45)]">
+        <div className="mb-4 flex items-center justify-between">
+          <span className="text-[10px] uppercase tracking-[0.18em] text-ink/50">Schedule</span>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-ink/50">2026</span>
+        </div>
+
+        <div className="relative h-14 overflow-hidden border-y border-ink/20">
+          {months.map((month, index) => (
+            <motion.div
+              key={month}
+              className="absolute inset-0 flex items-center justify-center font-display text-2xl tracking-[0.16em] text-ink"
+              initial={{ rotateX: -90, opacity: 0, y: -8 }}
+              animate={{ rotateX: [0, 0, 88], opacity: [1, 1, 0], y: [0, 0, 8] }}
+              transition={{
+                duration: 0.85,
+                delay: index * 0.45,
+                repeat: Infinity,
+                repeatDelay: months.length * 0.45 - 0.85,
+                ease: "easeInOut",
+              }}
+              style={{ transformOrigin: "center top" }}
+            >
+              {month}
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="mt-4 grid grid-cols-7 gap-1 text-[9px] text-ink/45">
+          {Array.from({ length: 28 }, (_, i) => (
+            <span
+              key={i}
+              className={`h-4 rounded-[2px] ${
+                i === 8 || i === 14 || i === 20 ? "bg-ink/18" : "bg-ink/6"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function ParallaxImage({ src, alt }: { src: string; alt: string }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [14, -14]);
+
+  return (
+    <div ref={ref} className="relative overflow-hidden border border-line bg-paper-soft">
+      <motion.img
+        style={{ y }}
+        src={src}
+        alt={alt}
+        whileHover={{ scale: 1.03, y: -4 }}
+        transition={{ duration: 0.25 }}
+        className="h-[300px] w-full object-cover sm:h-[360px]"
+      />
     </div>
   );
 }

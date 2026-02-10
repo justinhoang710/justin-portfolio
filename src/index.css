@@ -1,16 +1,36 @@
-
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap");
 @import "tailwindcss";
 
 html,
 body,
 #root {
-  height: 100%;
+  min-height: 100%;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: "Inter", sans-serif;
-  background-color: #efe7dc;
-  color: #2f2621;
+  font-family: "Instrument Sans", sans-serif;
+  background-color: #f5f3ee;
+  color: #22201c;
+  line-height: 1.5;
+}
+
+/* Subtle texture to avoid a flat background while keeping a clean archival feel. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(30, 28, 25, 0.028), transparent 45%),
+    radial-gradient(circle at 85% 0%, rgba(30, 28, 25, 0.02), transparent 35%);
+  z-index: -1;
+}
+
+::selection {
+  background: rgba(34, 32, 28, 0.14);
 }
