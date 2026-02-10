@@ -25,7 +25,7 @@ const selectedWork: WorkItem[] = [
       "Built with agent-based workflows to evaluate portfolio scenarios and surface practical recommendations through a clean interface.",
     image:
       "https://images.unsplash.com/photo-1551281044-8b5bd0f5f0f1?auto=format&fit=crop&w=1600&q=80",
-    link: "https://github.com/1juho1",
+    link: "https://github.com/justinhoang710/FinGen_Agents",
     linkLabel: "View project",
   },
   {
@@ -36,7 +36,7 @@ const selectedWork: WorkItem[] = [
       "Designed to simplify roster updates, match planning, and player performance review with responsive, easy-to-scan views.",
     image:
       "https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=1600&q=80",
-    link: "https://github.com/1juho1",
+    link: "https://github.com/justinhoang710",
     linkLabel: "View project",
   },
   {
@@ -47,7 +47,7 @@ const selectedWork: WorkItem[] = [
       "Focused on clarity and reliability so managers can publish schedules quickly while employees can check updates in real time.",
     image:
       "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=1600&q=80",
-    link: "https://github.com/1juho1",
+    link: "https://github.com/justinhoang710",
     linkLabel: "View project",
   },
 ];
