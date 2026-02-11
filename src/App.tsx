@@ -87,38 +87,40 @@ const fadeInUp = {
 
 export default function App() {
   const [view, setView] = useState<View>("home");
+  const navTabClass = (isActive: boolean) =>
+    [
+      "shrink-0 rounded-sm px-1.5 py-1 text-[10px] transition sm:px-2.5 sm:py-1.5 sm:text-xs",
+      isActive ? "bg-accent-soft text-accent" : "hover:bg-accent-soft/70 hover:text-accent",
+    ].join(" ");
 
   return (
     <div className="min-h-screen bg-paper text-ink">
       <header className="sticky top-0 z-20 border-b border-line/70 bg-[linear-gradient(90deg,rgba(230,238,244,0.9),rgba(245,243,238,0.92),rgba(231,239,233,0.88))] backdrop-blur supports-[backdrop-filter]:bg-[linear-gradient(90deg,rgba(230,238,244,0.78),rgba(245,243,238,0.8),rgba(231,239,233,0.74))]">
-        <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-2 sm:px-8">
+        <div className="mx-auto flex min-h-16 max-w-6xl flex-col items-start gap-2 px-4 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2 sm:px-8">
           <button
             onClick={() => setView("home")}
-            className="text-sm font-medium tracking-[0.14em] text-accent/90 transition hover:text-accent"
+            className="text-xs font-medium tracking-[0.14em] text-accent/90 transition hover:text-accent sm:text-sm"
           >
             JUSTIN HOANG
           </button>
 
-          <nav className="flex items-center gap-5 text-xs uppercase tracking-[0.16em] text-ink/75">
+          <nav className="w-full sm:w-auto">
+            <div className="flex w-full items-center gap-1 overflow-x-auto whitespace-nowrap text-[10px] uppercase tracking-[0.16em] text-ink/75 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:w-auto sm:gap-4 sm:overflow-visible sm:text-xs">
             <button
               onClick={() => setView("home")}
-              className={view === "home" ? "rounded-sm bg-accent-soft px-2 py-1 text-accent" : "rounded-sm px-2 py-1 transition hover:bg-accent-soft/70 hover:text-accent"}
+              className={navTabClass(view === "home")}
             >
               Home
             </button>
             <button
               onClick={() => setView("work")}
-              className={view === "work" ? "rounded-sm bg-accent-soft px-2 py-1 text-accent" : "rounded-sm px-2 py-1 transition hover:bg-accent-soft/70 hover:text-accent"}
+              className={navTabClass(view === "work")}
             >
               Work
             </button>
             <button
               onClick={() => setView("education")}
-              className={
-                view === "education"
-                  ? "rounded-sm bg-accent-soft px-2 py-1 text-accent"
-                  : "rounded-sm px-2 py-1 transition hover:bg-accent-soft/70 hover:text-accent"
-              }
+              className={navTabClass(view === "education")}
             >
               Education
             </button>
@@ -126,10 +128,11 @@ export default function App() {
               href={RESUME_URL}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 transition hover:text-accent"
+              className="inline-flex shrink-0 items-center gap-1 rounded-sm px-1.5 py-1 text-[10px] transition hover:bg-accent-soft/70 hover:text-accent sm:px-2.5 sm:py-1.5 sm:text-xs"
             >
               Resume <ArrowUpRight className="h-3.5 w-3.5" />
             </a>
+            </div>
           </nav>
         </div>
       </header>
